@@ -11,7 +11,7 @@ import {
   Tbody,
   Td,
   useBreakpointValue,
-} from "chakra-ui/react";
+} from "@chakra-ui/react";
 
 import { useEffect, useState } from "react";
 import ModalComp from "./components/ModalComp";
@@ -20,6 +20,31 @@ const App = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [data, setData] = useState([]);
   const [dataEdit, setDataEdit] = useState({});
+
+  const isMobile = useBreakpointValue({
+    base: true,
+    lg: false,
+  });
+
+  useEffect(() => {
+    const db_costumer = localStorage.getItem("cad_client")
+    ? JSON.parse(localStorage.getItem("cad_client"))
+    : [];
+
+    setData(db_costumer);
+  }, [setData]);
+
+  const handleRemove = (email) => {
+    const conf = confirm(`Do you realy wanna exclude the ${email}?`);
+
+    if(conf) {
+      const newArray = data.filter((item) => item.email !== email);
+  
+      setData(newArray);
+  
+      localStorage.setItem("cad_client", JSON.stringify(newArray));
+    }
+  };
 
   return (
     <Flex
@@ -73,6 +98,16 @@ const App = () => {
           </Table>
         </Box>
       </Box>
+      {isOpen && (
+        <ModalComp
+          isOpen={isOpen}
+          onClose={onClose}
+          data={data}
+          setData={setData}
+          dataEdit={dataEdit}
+          setDataEdit={setDataEdit}
+        />
+      )}
     </Flex>
   );
 };
